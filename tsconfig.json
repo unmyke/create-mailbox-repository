@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./lib",
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    "pretty": true,
+
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es6", "dom"],
+    "resolveJsonModule": true,
+
+    "allowSyntheticDefaultImports": true,
+
+    "noImplicitAny": false,
+
+    "esModuleInterop": true,
+    "noLib": false,
+
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "exclude": ["node_modules", "dist", "__tests__"]
+}
