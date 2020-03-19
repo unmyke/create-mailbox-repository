@@ -1,15 +1,17 @@
-import createMailboxList, { MailboxListGetter } from './create-mailbox-list'
+import createMailboxList, { MailboxListGetter } from './create-mailbox-list';
 import customizeCreateMailboxFactory, {
   CreateMailboxFactory
-} from './create-mailbox-factory'
+} from './create-mailbox-factory';
+import Mailbox from './mailbox';
 
-export type NameGetter = () => string
-export type MailboxProcessor = () => void
+export type NameGetter = () => string;
+export type MailboxProcessor = () => void;
 export type MailboxListFactory = {
-  createMailboxFactory: CreateMailboxFactory;
+  createMailbox: Mailbox;
+  getMailboxByName: GetMailboxByName;
   getMailboxes: MailboxListGetter;
   dropMailboxes: MailboxProcessor;
-}
+};
 
 const createMailboxListFactory = (): MailboxListFactory => {
   const {
@@ -18,18 +20,18 @@ const createMailboxListFactory = (): MailboxListFactory => {
     addMailbox,
     removeMailbox,
     dropMailboxes
-  } = createMailboxList()
+  } = createMailboxList();
 
   const createMailboxFactory = customizeCreateMailboxFactory({
     getMailboxByName,
     addMailbox,
     removeMailbox
-  })
+  });
 
   return {
     createMailboxFactory,
     getMailboxes,
     dropMailboxes
-  }
-}
-export default createMailboxListFactory
+  };
+};
+export default createMailboxListFactory;
