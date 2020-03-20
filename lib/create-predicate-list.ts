@@ -11,11 +11,11 @@ export type PredicatesGetter = ListGetter<Predicate>
 export type PredicateSetter = ListSetter<Predicate>
 
 export type PredicateList = {
-  getPredicates: PredicatesGetter;
-  addPredicate: PredicateSetter;
-  removePredicate: PredicateSetter;
-  checkMsg: Predicate;
-  dropPredicates: ListProcessor;
+  getPredicates: PredicatesGetter
+  addPredicate: PredicateSetter
+  removePredicate: PredicateSetter
+  checkMsg: Predicate
+  dropPredicates: ListProcessor
 }
 
 const createPredicateList = (

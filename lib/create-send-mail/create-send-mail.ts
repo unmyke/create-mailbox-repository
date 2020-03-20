@@ -7,11 +7,11 @@ export type Msg = string
 export type MsgProcessor = (msg: Msg) => void
 
 export type SendMail = {
-  name: string;
-  checkMsg: Predicate;
-  runNotifyHooks: MsgProcessor;
-  callIfMailboxEnabled: CallIfEnabled<MsgProcessor>;
-  send?: MsgProcessor;
+  name: string
+  checkMsg: Predicate
+  runNotifyHooks: MsgProcessor
+  callIfMailboxEnabled: CallIfEnabled<MsgProcessor>
+  send?: MsgProcessor
 }
 
 const createSendMail = ({

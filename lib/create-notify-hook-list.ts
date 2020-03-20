@@ -11,11 +11,11 @@ export type NotifyHooksGetter = ListGetter<NotifyHook>
 export type NotifyHookSetter = ListSetter<NotifyHook>
 
 export type NotifyHookList = {
-  getNotifyHooks: ListGetter<NotifyHook>;
-  addNotifyHook: NotifyHookSetter;
-  removeNotifyHook: NotifyHookSetter;
-  runNotifyHooks: MsgProcessor;
-  dropNotifyHooks: ListProcessor;
+  getNotifyHooks: ListGetter<NotifyHook>
+  addNotifyHook: NotifyHookSetter
+  removeNotifyHook: NotifyHookSetter
+  runNotifyHooks: MsgProcessor
+  dropNotifyHooks: ListProcessor
 }
 
 const createNotifyHookList = (
