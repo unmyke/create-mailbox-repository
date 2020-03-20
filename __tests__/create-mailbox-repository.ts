@@ -1,78 +1,74 @@
-// tslint:disable: no-shadowed-variable
 // tslint:disable: one-variable-per-declaration
+// tslint:disable: no-shadowed-variable
 
-import Mailbox, { NotifyHook, Predicate, Msg } from '../../lib'
-import { MsgProcessor } from '../../lib/create-send-mail'
-import { MailboxListGetter } from '../../lib/create-mailbox-list'
-import { ListProcessor } from '../../lib/create-list-handlers'
+import createMailboxRepository, {
+  MailboxRepository,
+  Mailbox,
+  NotifyHook,
+  Predicate,
+  Msg
+} from '../lib'
+import { MailboxFactory } from '../lib/create-mailbox-factory'
+import defaultSend from './lib/default-send'
 
-const createMailboxTests = ({
-  createMailbox,
-  getMailboxes,
-  dropMailboxes
-}: {
-  createMailbox: (name: string, send?: MsgProcessor) => Mailbox;
-  getMailboxes: MailboxListGetter;
-  dropMailboxes: ListProcessor;
-}): void => {
+describe('createMailboxRepository::', () => {
+  let mailboxRepository: MailboxRepository
+  let mailbox: Mailbox
+  let createMailbox: MailboxFactory
+  const mailboxName = 'mailbox name'
+
+  beforeEach(() => {
+    mailboxRepository = createMailboxRepository()
+    createMailbox = mailboxRepository.createMailbox
+  })
+
+  describe('#getAll, #drop::', () => {
+    test('should check mailbox repository to be fullfiled by new mailboxes', () => {
+      const { getAll, drop } = mailboxRepository
+
+      expect(getAll()).toHaveLength(0)
+
+      const mailbox1 = createMailbox('1')
+      expect(getAll()).toHaveLength(1)
+      expect(getAll()).toEqual([mailbox1])
+
+      const mailbox2 = createMailbox('2')
+      expect(getAll()).toHaveLength(2)
+      expect(getAll()).toEqual([mailbox1, mailbox2])
+
+      const mailbox3 = createMailbox('3')
+      expect(getAll()).toHaveLength(3)
+      expect(getAll()).toEqual([mailbox1, mailbox2, mailbox3])
+
+      drop()
+      expect(getAll()).toHaveLength(0)
+    })
+  })
+
+  describe('#createMailbox', () => {
+    beforeEach(() => {
+      mailbox = createMailbox(mailboxName, defaultSend)
+    })
+
+    test('returns new instance for different mailbox name', () => {
+      const newMailboxName = 'new mailbox name'
+      const newMailbox = createMailbox(newMailboxName)
+
+      expect(mailbox.getName()).toBe(mailboxName)
+      expect(newMailbox.getName()).toBe(newMailboxName)
+      expect(newMailbox).not.toBe(mailbox)
+    })
+
+    test('returns existing instance for same mailbox name', () => {
+      const sameMailbox = createMailbox(mailboxName)
+
+      expect(sameMailbox).toBe(mailbox)
+    })
+  })
   describe('Mailbox::', () => {
-    let mailbox: Mailbox
-    const mailboxName = 'name'
-
-    const cleanup = () => {
-      dropMailboxes()
-      mailbox = undefined
-    }
-
-    afterAll(cleanup)
-    beforeEach(cleanup)
-
-    describe('Mailbox Inventory::', () => {
-      test('should check mailbox inventory to be fullfiled by new mailboxes', () => {
-        expect(getMailboxes()).toHaveLength(0)
-
-        const mailbox1 = createMailbox('1')
-        expect(getMailboxes()).toHaveLength(1)
-        expect(getMailboxes()).toEqual([mailbox1])
-
-        const mailbox2 = createMailbox('2')
-        expect(getMailboxes()).toHaveLength(2)
-        expect(getMailboxes()).toEqual([mailbox1, mailbox2])
-
-        const mailbox3 = createMailbox('3')
-        expect(getMailboxes()).toHaveLength(3)
-        expect(getMailboxes()).toEqual([mailbox1, mailbox2, mailbox3])
-
-        dropMailboxes()
-        expect(getMailboxes()).toHaveLength(0)
-      })
-    })
-
-    describe('#createMailbox', () => {
-      beforeEach(() => {
-        mailbox = createMailbox(mailboxName)
-      })
-
-      test('returns new instance for different mailbox name', () => {
-        const newMailboxName = 'new name'
-        const newMailbox = createMailbox(newMailboxName)
-
-        expect(mailbox.getName()).toBe(mailboxName)
-        expect(newMailbox.getName()).toBe(newMailboxName)
-        expect(newMailbox).not.toBe(mailbox)
-      })
-
-      test('returns existing instance for same mailbox name', () => {
-        const sameMailbox = createMailbox(mailboxName)
-
-        expect(sameMailbox).toBe(mailbox)
-      })
-    })
-
     describe('#isEnabled', () => {
       beforeEach(() => {
-        cleanup()
-        mailbox = createMailbox(mailboxName)
+        mailbox = createMailbox(mailboxName, defaultSend)
       })
 
       test('returns enabled for new mailbox', () => {
@@ -82,7 +78,7 @@ const createMailboxTests = ({
 
     describe('#disable', () => {
       beforeEach(() => {
-        mailbox = createMailbox(mailboxName)
+        mailbox = createMailbox(mailboxName, defaultSend)
         mailbox.disable()
       })
 
@@ -151,7 +147,7 @@ const createMailboxTests = ({
         notifyHook1 = createNotifyHook(1)
         notifyHook2 = createNotifyHook(2)
         notifyHook3 = createNotifyHook(3)
-        mailbox = createMailbox(mailboxName)
+        mailbox = createMailbox(mailboxName, defaultSend)
       })
 
       describe('manage notify hooks', () => {
@@ -231,7 +227,7 @@ const createMailboxTests = ({
 
       describe('manage pre hooks', () => {
         beforeEach(() => {
-          mailbox = createMailbox(mailboxName)
+          mailbox = createMailbox(mailboxName, defaultSend)
           mailbox.addPreHook(predicate1)
           mailbox.addPreHook(predicate2)
           mailbox.addPreHook(predicate3)
@@ -320,6 +316,4 @@ const createMailboxTests = ({
       })
     })
   })
-}
-
-export default createMailboxTests
+})
