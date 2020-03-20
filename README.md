@@ -11,6 +11,28 @@
 > - Если считаете, что Mailbox не хватает еще каких-то технических функций для более готового к использованию API, добавьте их или напишите, что бы вы добавили. Если считаете, что данное API содержит какие-то проблемы с точки зрения проектирования, опишите их и предложите рефакторинг.
 > - Какие части кода можно было бы концептуально абстрагировать из реализации Mailbox и сделать их переиспользуемыми? Попробуйте максимально разбить реализацию на переиспользуемые части.
 
+## Скрипты
+
+### Установка
+
+```console
+git clone git@github.com:unmyke/create-mailbox-repository.git
+cd ./create-mailbox-repository
+yarn install
+```
+
+### Запуск тестов
+
+```console
+yarn test
+```
+
+### Примеры использования
+
+```console
+yarn usecases
+```
+
 ## Описание
 
 Значительной переработке подверглось предлагаемое заданием API пакета, что улучшило использование не только самого класса, но управлением репозиторием почтовых ящиков: по заданию предполагалось добавление в репозиторий почтовых ящиков при создании экземпляра, но методов работы с ним не предусматривалось.
@@ -26,24 +48,24 @@
 ### Система типов
 
 ```ts
-type Predicate = (msg: string) => boolean;
-type NotifyHook = (msg: string) => void;
+type Predicate = (msg: string) => boolean
+type NotifyHook = (msg: string) => void
 
 declare class Mailbox {
-  isEnabled: () => boolean;
-  getName: () => string;
-  sendMail: (msg: string) => void;
-  getPreHooks: Array<Predicate>;
-  pre: (preHook: Predicate) => void;
-  addPreHook: (preHook: Predicate) => void;
-  removePreHook: (preHook: Predicate) => void;
-  getNotifyHooks: () => Array<NotifyHook>;
-  notify: (notifyHook: NotifyHook) => void;
-  addNotifyHook: (notifyHook: NotifyHook) => void;
-  removeNotifyHook: (notifyHook: NotifyHook) => void;
-  disable: () => viod;
+  isEnabled: () => boolean
+  getName: () => string
+  sendMail: (msg: string) => void
+  getPreHooks: Array<Predicate>
+  pre: (preHook: Predicate) => void
+  addPreHook: (preHook: Predicate) => void
+  removePreHook: (preHook: Predicate) => void
+  getNotifyHooks: () => Array<NotifyHook>
+  notify: (notifyHook: NotifyHook) => void
+  addNotifyHook: (notifyHook: NotifyHook) => void
+  removeNotifyHook: (notifyHook: NotifyHook) => void
+  disable: () => viod
 
-  constructor(name: string, send?: (msg: string) => void);
+  constructor(name: string, send?: (msg: string) => void)
 }
 ```
 
@@ -54,42 +76,42 @@ declare class Mailbox {
 #### `getMailboxes(): Array<Mailbox>`
 
 ```ts
-import { getMailboxes } from "./lib";
+import { getMailboxes } from './lib'
 
 // Output: []
-console.log(getMailboxes());
+console.log(getMailboxes())
 
-const name = "mailbox";
-const mailbox = createMailbox(name);
+const name = 'mailbox'
+const mailbox = createMailbox(name)
 // Output: [mailbox]
-console.log(getMailboxes());
+console.log(getMailboxes())
 
-const newMailbox = createMailbox("new mailbox");
+const newMailbox = createMailbox('new mailbox')
 // Output: [mailbox, newMailbox]
-console.log(getMailboxes());
+console.log(getMailboxes())
 
-const mailbox = createMailbox(name);
+const mailbox = createMailbox(name)
 // Output: [mailbox, newMailbox]
-console.log(getMailboxes());
+console.log(getMailboxes())
 ```
 
 #### `dropMailboxes(): viod`
 
 ```ts
-import { getMailboxes } from "./lib";
+import { getMailboxes } from './lib'
 
 // Output: []
-console.log(getMailboxes());
+console.log(getMailboxes())
 
-const name = "mailbox";
-const mailbox = createMailbox(name);
-const newMailbox = createMailbox("new mailbox");
+const name = 'mailbox'
+const mailbox = createMailbox(name)
+const newMailbox = createMailbox('new mailbox')
 // Output: [mailbox, newMailbox]
-console.log(getMailboxes());
+console.log(getMailboxes())
 
-dropMailboxes();
+dropMailboxes()
 // Output: []
-console.log(getMailboxes());
+console.log(getMailboxes())
 ```
 
 #### `new Mailbox(name: string, sendHook: (msg: string) => void)` / `createMailbox(name: string, sendHook: (msg: string) => Mailbox)`
@@ -99,19 +121,19 @@ console.log(getMailboxes());
 Второй необязательный параметр позволяет добавить логику отправки письма в среде, отличной от 'production' (т.е. если значение process.env.NODE_ENV не равно `production`). Если же параметр не задан будет запущена [логика отправки письма по-умолчанию](/lib/create-send-mail/default-send-hook.ts).
 
 ```ts
-import Mailbox, { createMailbox } from "./lib";
+import Mailbox, { createMailbox } from './lib'
 
-const name = "Mailbox name";
+const name = 'Mailbox name'
 
-const mailbox = new Mailbox(name);
+const mailbox = new Mailbox(name)
 // или
-const mailbox = createMailbox(name);
+const mailbox = createMailbox(name)
 
-const sameMailbox = new Mailbox(name);
+const sameMailbox = new Mailbox(name)
 // или
-const sameMailbox = createMailbox(name);
+const sameMailbox = createMailbox(name)
 
-console.log(mailbox === sameMailbox); // Output: true
+console.log(mailbox === sameMailbox) // Output: true
 ```
 
 ---
