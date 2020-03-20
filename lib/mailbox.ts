@@ -1,52 +1,24 @@
 import { StatePredicate } from './create-state'
 import { PredicatesGetter, PredicateSetter } from './create-predicate-list'
 import { NotifyHooksGetter, NotifyHookSetter } from './create-notify-hook-list'
-import createMailboxListFactory, {
-  MailboxProcessor,
-  NameGetter
-} from './create-mailbox-list-factory'
 import { MsgProcessor } from './create-send-mail'
-import identity from './identity'
 
-export type MailboxConstructor = (mailbox: Mailbox) => Mailbox
+export type MailboxProcessor = () => void
+export type NameGetter = () => string
 
-const {
-  createMailboxFactory,
-  getMailboxes,
-  dropMailboxes
-} = createMailboxListFactory()
-
-const instantiateMailbox = createMailboxFactory(
-  (mailbox: Mailbox): Mailbox => {
-    const mailboxInstance = Object.create(Mailbox.prototype)
-
-    Object.getOwnPropertyNames(mailbox).forEach((methodName: string): void => {
-      mailboxInstance[methodName] = mailbox[methodName]
-    })
-    return mailboxInstance
-  }
-)
-const createMailbox = createMailboxFactory(identity)
-
-class Mailbox {
-  isEnabled: StatePredicate
-  getName: NameGetter
-  sendMail: MsgProcessor
-  getPreHooks: PredicatesGetter
-  pre: PredicateSetter
-  addPreHook: PredicateSetter
-  removePreHook: PredicateSetter
-  getNotifyHooks: NotifyHooksGetter
-  notify: NotifyHookSetter
-  addNotifyHook: NotifyHookSetter
-  removeNotifyHook: NotifyHookSetter
-  disable: MailboxProcessor
-
-  constructor(name: string, send?: MsgProcessor) {
-    const mailbox = instantiateMailbox(name, send)
-    return mailbox
-  }
+type Mailbox = {
+  readonly isEnabled: StatePredicate
+  readonly getName: NameGetter
+  readonly sendMail: MsgProcessor
+  readonly getPreHooks: PredicatesGetter
+  readonly pre: PredicateSetter
+  readonly addPreHook: PredicateSetter
+  readonly removePreHook: PredicateSetter
+  readonly getNotifyHooks: NotifyHooksGetter
+  readonly notify: NotifyHookSetter
+  readonly addNotifyHook: NotifyHookSetter
+  readonly removeNotifyHook: NotifyHookSetter
+  readonly disable: MailboxProcessor
 }
 
 export default Mailbox
-export { createMailbox, dropMailboxes, getMailboxes }
