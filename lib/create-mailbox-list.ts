@@ -14,11 +14,11 @@ export type MailboxesProccesor = (
 ) => void
 
 const createMailboxList = (): {
-  getMailboxes: MailboxListGetter;
-  getMailboxByName: MailboxGetter;
-  addMailbox: MailboxSetter;
-  removeMailbox: MailboxSetter;
-  dropMailboxes: ListProcessor;
+  getMailboxes: MailboxListGetter
+  getMailboxByName: MailboxGetter
+  addMailbox: MailboxSetter
+  removeMailbox: MailboxSetter
+  dropMailboxes: ListProcessor
 } => {
   const {
     get: getMailboxes,
