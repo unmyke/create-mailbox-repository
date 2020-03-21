@@ -1,6 +1,6 @@
 export enum STATE {
   ENABLED = 'enabled',
-  DISABLED = 'disabled'
+  DISABLED = 'disabled',
 }
 
 export type StatePredicate = () => boolean

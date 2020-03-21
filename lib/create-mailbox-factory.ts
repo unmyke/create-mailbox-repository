@@ -23,14 +23,14 @@ const createMailboxFactory = (): MailboxFactory => {
       addPredicate: addPreHook,
       removePredicate: removePreHook,
       checkMsg,
-      dropPredicates
+      dropPredicates,
     } = createPredicateList(callIfMailboxEnabled)
     const {
       getNotifyHooks: getNotifyHooks,
       addNotifyHook: addNotifyHook,
       removeNotifyHook: removeNotifyHook,
       runNotifyHooks,
-      dropNotifyHooks
+      dropNotifyHooks,
     } = createNotifyHookList(callIfMailboxEnabled)
 
     const pre = deprecatedCaller(addPreHook)
@@ -41,7 +41,7 @@ const createMailboxFactory = (): MailboxFactory => {
       checkMsg,
       runNotifyHooks,
       send,
-      callIfMailboxEnabled
+      callIfMailboxEnabled,
     })
 
     const mailbox = {
@@ -60,7 +60,7 @@ const createMailboxFactory = (): MailboxFactory => {
         dropPredicates()
         dropNotifyHooks()
         disable()
-      }
+      },
     }
 
     return mailbox

@@ -2,7 +2,7 @@ import { Msg } from './create-send-mail'
 import createListHandlers, {
   ListGetter,
   ListSetter,
-  ListProcessor
+  ListProcessor,
 } from './create-list-handlers'
 import { CallIfEnabled } from './create-call-if-enabled'
 
@@ -19,13 +19,13 @@ export type PredicateList = {
 }
 
 const createPredicateList = (
-  callIfEnabled: CallIfEnabled<PredicateSetter | ListProcessor>
+  callIfEnabled: CallIfEnabled<PredicateSetter>,
 ): PredicateList => {
   const {
     get: getPredicates,
     add,
     remove,
-    drop: dropPredicates
+    drop: dropPredicates,
   } = createListHandlers<Predicate>()
 
   const checkMsg = (msg: string): boolean => {
@@ -34,7 +34,7 @@ const createPredicateList = (
       (prevPredicateCheck: boolean, curPredicate: Predicate): boolean => {
         return prevPredicateCheck && curPredicate(msg)
       },
-      true
+      true,
     )
   }
 
@@ -46,7 +46,7 @@ const createPredicateList = (
     addPredicate,
     removePredicate,
     checkMsg,
-    dropPredicates
+    dropPredicates,
   }
 }
 

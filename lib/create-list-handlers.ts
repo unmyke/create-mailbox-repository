@@ -32,7 +32,7 @@ const createListHandlers = <Item>(): ListHandlers<Item> => {
     get,
     add,
     remove,
-    drop
+    drop,
   }
 }
 
