@@ -27,9 +27,7 @@ const createSendMail = ({
 
   return callIfMailboxEnabled((msg: string): void => {
     if (checkMsg(msg)) {
-      // insert send logic here
       sendHook(msg)
-
       runNotifyHooks(msg)
     }
   })
