@@ -1,14 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatePredicate } from './create-state'
 
 export type CallIfEnabled<Fn extends (...args: any[]) => any> = (
-  fn: Fn
-) => (...args: any[]) => ReturnType<Fn> | void
+  fn: Fn,
+) => (...args: Parameters<Fn>) => ReturnType<Fn> | void
 
-const createCallIfEnabled = (isEnabled: StatePredicate) => <
+const createCallIfEnabled = <
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Fn extends (...args: any[]) => any
 >(
-  fn: Fn
-) => (...args: any[]): ReturnType<Fn> | void => {
+  isEnabled: StatePredicate,
+): CallIfEnabled<Fn> => (fn: Fn) => (
+  ...args: Parameters<Fn>
+): ReturnType<Fn> | void => {
   if (isEnabled()) {
     return fn(...args)
   }

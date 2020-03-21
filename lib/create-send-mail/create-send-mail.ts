@@ -15,11 +15,12 @@ export type SendMail = {
 }
 
 const createSendMail = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   name,
   checkMsg,
   runNotifyHooks,
   callIfMailboxEnabled,
-  send
+  send,
 }: SendMail): MsgProcessor => {
   const sendHook =
     process.env.NODE_ENV === ENVS.PROD || !send ? defaultSendHook : send

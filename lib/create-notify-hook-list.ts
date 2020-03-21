@@ -2,7 +2,7 @@ import { Msg, MsgProcessor } from './create-send-mail'
 import createListHandlers, {
   ListGetter,
   ListSetter,
-  ListProcessor
+  ListProcessor,
 } from './create-list-handlers'
 import { CallIfEnabled } from './create-call-if-enabled'
 
@@ -19,7 +19,7 @@ export type NotifyHookList = {
 }
 
 const createNotifyHookList = (
-  callIfEnabled: CallIfEnabled<NotifyHookSetter | ListProcessor | MsgProcessor>
+  callIfEnabled: CallIfEnabled<NotifyHookSetter | ListProcessor | MsgProcessor>,
 ): NotifyHookList => {
   const { get: getNotifyHooks, add, remove, drop } = createListHandlers<
     NotifyHook
@@ -42,7 +42,7 @@ const createNotifyHookList = (
     addNotifyHook,
     removeNotifyHook,
     runNotifyHooks,
-    dropNotifyHooks
+    dropNotifyHooks,
   }
 }
 

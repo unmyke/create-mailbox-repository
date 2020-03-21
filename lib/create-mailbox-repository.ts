@@ -17,7 +17,7 @@ const createMailboxRepository = (): MailboxRepository => {
     dropMailboxes: drop,
     getMailboxByName: getByName,
     getMailboxes: getAll,
-    removeMailbox
+    removeMailbox,
   } = createMailboxList()
 
   const createMailbox = (name: string, send?: MsgProcessor): Mailbox => {
@@ -32,15 +32,16 @@ const createMailboxRepository = (): MailboxRepository => {
     const mailboxFactory = createMailboxFactory()
     const { disable: disableMailbox, ...restMailbox } = mailboxFactory(
       name,
-      send
+      send,
     )
-    const disable = () => {
+    const disable = (): void => {
       disableMailbox()
+
       removeMailbox(mailbox)
     }
     const mailbox = {
       ...restMailbox,
-      disable
+      disable,
     }
     addMailbox(mailbox)
 
@@ -51,7 +52,7 @@ const createMailboxRepository = (): MailboxRepository => {
     createMailbox,
     getAll,
     getByName,
-    drop
+    drop,
   }
 }
 export default createMailboxRepository

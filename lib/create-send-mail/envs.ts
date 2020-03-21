@@ -1,6 +1,6 @@
 enum ENVS {
   DEV = 'development',
-  PROD = 'production'
+  PROD = 'production',
 }
 
 export default ENVS
