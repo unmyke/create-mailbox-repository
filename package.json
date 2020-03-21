@@ -7,7 +7,7 @@
     "clean": "rm -rf dist",
     "build": "yarn run clean && yarn run tsc",
     "test": "yarn jest",
-    "usecases": "yarn ts-node ./usecases.ts",
+    "usecases": "yarn ts-node ./lib/usecases.ts",
     "typecheck": "yarn tsc --noEmit",
     "lint": "tslint --project tsconfig.json -c tslint.json -t codeFrame lib/**/*.ts"
   },
