@@ -81,6 +81,21 @@ describe('createMailboxRepository::', () => {
       })
     })
 
+    describe('#isDisabled', () => {
+      beforeEach(() => {
+        mailbox = createMailbox(mailboxName, defaultSend)
+      })
+
+      test('returns false for new mailbox', () => {
+        expect(mailbox.isDisabled()).toBeFalsy()
+      })
+
+      test('returns true for disabled mailbox', () => {
+        mailbox.disable()
+        expect(mailbox.isDisabled()).toBeTruthy()
+      })
+    })
+
     describe('#disable', () => {
       beforeEach(() => {
         mailbox = createMailbox(mailboxName, defaultSend)
