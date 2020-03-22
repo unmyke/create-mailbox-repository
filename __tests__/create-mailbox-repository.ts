@@ -256,19 +256,16 @@ describe('createMailboxRepository::', () => {
       const msg = 'msg'
 
       let notifyHook1, notifyHook2, notifyHook3: NotifyHook
-      let notifyMockFn
+      let notifyMockFn, sendMockFn
 
       beforeEach(() => {
-        notifyMockFn = jest.fn()
-
-        const createNotifyHook = (num: number) => (msg: Msg) => {
-          notifyMockFn(`notifyHook${num}: ${msg}`)
-        }
-
+        sendMockFn = jest.fn()
+        const { mockFn, createHook: createNotifyHook } = useNotifyHookMock()
+        notifyMockFn = mockFn;
         notifyHook1 = createNotifyHook(1)
         notifyHook2 = createNotifyHook(2)
         notifyHook3 = createNotifyHook(3)
-        mailbox = createMailbox(mailboxName, defaultSend)
+        mailbox = createMailbox(mailboxName, sendMockFn)
       })
 
       describe('manage notify hooks', () => {
@@ -279,14 +276,12 @@ describe('createMailboxRepository::', () => {
         })
         test('should count of added notify hooks', () => {
           const notifyHooks = mailbox.getNotifyHooks()
-          expect(notifyHooks).toHaveLength(3)
           expect(notifyHooks).toEqual([notifyHook1, notifyHook2, notifyHook3])
         })
         test('should count of notify hooks when second hook is removed', () => {
           mailbox.removeNotifyHook(notifyHook2)
 
           const notifyHooks = mailbox.getNotifyHooks()
-          expect(notifyHooks).toHaveLength(2)
           expect(notifyHooks).toEqual([notifyHook1, notifyHook3])
         })
         test('should count of added notify hooks when first andl last hooks is removed', () => {
@@ -294,7 +289,6 @@ describe('createMailboxRepository::', () => {
           mailbox.removeNotifyHook(notifyHook3)
 
           const notifyHooks = mailbox.getNotifyHooks()
-          expect(notifyHooks).toHaveLength(1)
           expect(notifyHooks).toEqual([notifyHook2])
         })
         test('should return no notify hooks when all hooks are removed', () => {
@@ -314,132 +308,153 @@ describe('createMailboxRepository::', () => {
           mailbox.addNotifyHook(notifyHook3)
           mailbox.sendMail(msg)
 
-          expect(notifyMockFn.mock.calls.length).toBe(3)
+          expect(notifyMockFn.mock.calls).toHaveLength(3)
           expect(notifyMockFn.mock.calls[0][0]).toBe(`notifyHook1: ${msg}`)
           expect(notifyMockFn.mock.calls[1][0]).toBe(`notifyHook2: ${msg}`)
           expect(notifyMockFn.mock.calls[2][0]).toBe(`notifyHook3: ${msg}`)
-        })
-
-        test('should not add notify hooks when disabled', () => {
-          mailbox.addNotifyHook(notifyHook1)
-          mailbox.addNotifyHook(notifyHook2)
-          mailbox.disable()
-          mailbox.addNotifyHook(notifyHook3)
-
-          expect(mailbox.getNotifyHooks()).toHaveLength(2)
+          expect(notifyMockFn.mock.calls[2][0]).toBe(`notifyHook3: ${msg}`)
+          expect(sendMockFn.mock.calls).toHaveLength(1)
+          expect(sendMockFn.mock.calls[0][0]).toBe(msg)
         })
       })
     })
 
     describe('#addPreHook/#removePreHook/#sendMail with pre hooks', () => {
-      let predicate1, predicate2, predicate3: Predicate
+      let predicateMockFn: jest.Mock<Msg, [Msg]>
+      let createPredicate: (bool: boolean) => Predicate
+      let truthyPredicate1, truthyPredicate2, truthyPredicate3, falsyPredicate: Predicate
 
-      const createPredicate = (regexp: RegExp): Predicate => (
-        msg: Msg
-      ): boolean => regexp.test(msg)
-      const predicate1Regexp = /^.*hook1.*$/
-      const predicate2Regexp = /^.*hook2.*$/
-      const predicate3Regexp = /^.*hook3.*$/
-      predicate1 = createPredicate(predicate1Regexp)
-      predicate2 = createPredicate(predicate2Regexp)
-      predicate3 = createPredicate(predicate3Regexp)
+      beforeEach(() => {
+        const { mockFn, createHook } = usePreHookMock()
+        createPredicate = createHook;
+        predicateMockFn = mockFn
+        truthyPredicate1 = createPredicate(true)
+        truthyPredicate2 = createPredicate(true)
+        truthyPredicate3 = createPredicate(true)
+        falsyPredicate = createPredicate(false)
+      })
 
       describe('manage pre hooks', () => {
         beforeEach(() => {
           mailbox = createMailbox(mailboxName, defaultSend)
         })
         test('should count of added pre hooks', () => {
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.addPreHook(predicate3)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.addPreHook(falsyPredicate)
           const predicates = mailbox.getPreHooks()
-          expect(predicates).toHaveLength(3)
-          expect(predicates).toEqual([predicate1, predicate2, predicate3])
+          expect(predicates).toEqual([truthyPredicate1, truthyPredicate2, truthyPredicate3, falsyPredicate])
         })
         test('should count of pre hooks when second hook is removed', () => {
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.addPreHook(predicate3)
-          mailbox.removePreHook(predicate2)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.removePreHook(truthyPredicate2)
 
           const predicates = mailbox.getPreHooks()
-          expect(predicates).toHaveLength(2)
-          expect(predicates).toEqual([predicate1, predicate3])
+          expect(predicates).toEqual([truthyPredicate1, truthyPredicate3, falsyPredicate])
         })
         test('should count of added pre hooks when first andl last hooks is removed', () => {
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.addPreHook(predicate3)
-          mailbox.removePreHook(predicate1)
-          mailbox.removePreHook(predicate3)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.removePreHook(truthyPredicate1)
+          mailbox.removePreHook(truthyPredicate3)
 
           const predicates = mailbox.getPreHooks()
-          expect(predicates).toHaveLength(1)
-          expect(predicates).toEqual([predicate2])
+          expect(predicates).toEqual([truthyPredicate2, falsyPredicate])
         })
         test('should return no pre hooks when all hooks are removed', () => {
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.addPreHook(predicate3)
-          mailbox.removePreHook(predicate1)
-          mailbox.removePreHook(predicate2)
-          mailbox.removePreHook(predicate3)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.removePreHook(truthyPredicate1)
+          mailbox.removePreHook(truthyPredicate2)
+          mailbox.removePreHook(truthyPredicate3)
+          mailbox.removePreHook(falsyPredicate)
 
           const predicates = mailbox.getPreHooks()
           expect(predicates).toHaveLength(0)
-        })
-        test('should return pre hooks when mailbox is disabled', () => {
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.disable()
-          mailbox.addPreHook(predicate3)
-
-          const predicates = mailbox.getPreHooks()
-          expect(predicates).toHaveLength(2)
         })
       })
 
       describe('calculate predicates on sendMail', () => {
         let sendHook
+        let msg: Msg
 
         beforeEach(() => {
           sendHook = jest.fn()
-
-          mailbox = createMailbox(mailboxName, (msg: Msg) => {
-            sendHook(msg)
-          })
-          mailbox.addPreHook(predicate1)
-          mailbox.addPreHook(predicate2)
-          mailbox.addPreHook(predicate3)
+          mailbox = createMailbox(mailboxName, sendHook)
         })
 
         test('should run send hook when all predicates return true', () => {
-          const acceptableMsg = 'hook1 hook2 hook3'
-          mailbox.sendMail(acceptableMsg)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.sendMail(msg)
 
-          expect(sendHook.mock.calls.length).toBe(1)
-          expect(sendHook.mock.calls[0][0]).toBe(acceptableMsg)
+          expect(predicateMockFn.mock.calls).toHaveLength(3)
+          expect(predicateMockFn.mock.calls[0][0]).toBe(msg)
+          expect(predicateMockFn.mock.calls[1][0]).toBe(msg)
+          expect(predicateMockFn.mock.calls[2][0]).toBe(msg)
+          expect(sendHook.mock.calls).toHaveLength(1)
+          expect(sendHook.mock.calls[0][0]).toBe(msg)
         })
 
-        test('should not run send hook when one predicates return false', () => {
-          const unacceptableMsg = 'hook1 hook2 hook4'
-          mailbox.sendMail(unacceptableMsg)
+        test(
+          'should not run send hook and calculate only first predicate when first predicate return false', () => {
+            mailbox.addPreHook(falsyPredicate)
+            mailbox.addPreHook(truthyPredicate1)
+            mailbox.addPreHook(truthyPredicate2)
+            mailbox.addPreHook(truthyPredicate3)
+            mailbox.addPreHook(truthyPredicate3)
+            mailbox.sendMail(msg)
 
-          expect(sendHook.mock.calls.length).toBe(0)
-        })
+            expect(predicateMockFn.mock.calls).toHaveLength(1)
+            expect(sendHook.mock.calls).toHaveLength(0)
+          }
+        )
+
+        test(
+          'should not run send hook and calculate all predicates when last predicate return false', () => {
+            mailbox.addPreHook(truthyPredicate1)
+            mailbox.addPreHook(truthyPredicate2)
+            mailbox.addPreHook(truthyPredicate3)
+            mailbox.addPreHook(truthyPredicate3)
+            mailbox.addPreHook(falsyPredicate)
+            mailbox.sendMail(msg)
+
+            expect(predicateMockFn.mock.calls).toHaveLength(5)
+            expect(sendHook.mock.calls).toHaveLength(0)
+          }
+        )
 
         test('should not run send hook when more than one predicates return false', () => {
-          const unacceptableMsg = 'hook0 hook2 hook4'
-          mailbox.sendMail(unacceptableMsg)
-
-          expect(sendHook.mock.calls.length).toBe(0)
+          mailbox.addPreHook(truthyPredicate1)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.addPreHook(truthyPredicate2)
+          mailbox.addPreHook(truthyPredicate3)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.sendMail(msg)
+          
+          expect(predicateMockFn.mock.calls).toHaveLength(2)
+          expect(sendHook.mock.calls).toHaveLength(0)
         })
-
+        
         test('should not run send hook when all predicates return false', () => {
-          const unacceptableMsg = ''
-          mailbox.sendMail(unacceptableMsg)
-
-          expect(sendHook.mock.calls.length).toBe(0)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.addPreHook(falsyPredicate)
+          mailbox.sendMail(msg)
+          
+          expect(predicateMockFn.mock.calls).toHaveLength(1)
+          expect(sendHook.mock.calls).toHaveLength(0)
         })
       })
     })
