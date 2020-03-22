@@ -71,8 +71,13 @@ describe('createMailboxRepository::', () => {
         mailbox = createMailbox(mailboxName, defaultSend)
       })
 
-      test('returns enabled for new mailbox', () => {
+      test('returns true for new mailbox', () => {
         expect(mailbox.isEnabled()).toBeTruthy()
+      })
+
+      test('returns false for disabled mailbox', () => {
+        mailbox.disable()
+        expect(mailbox.isEnabled()).toBeFalsy()
       })
     })
 
