@@ -87,6 +87,8 @@ type MailboxRepository = {
   readonly createMailbox: (name: string, send?) => Mailbox;
   readonly getAll: () => Mailbox[];
   readonly getByName: (name: string) => Mailbox;
+  readonly add: (mailbox: Mailbox) => boolean;
+  readonly remove: (mailbox: Mailbox) => boolean;
   readonly drop: () => void;
 }
 ```
@@ -120,6 +122,14 @@ console.log(mailbox === sameMailbox) // Output: true
 #### `mailboxRepository.getByName(name: string): Mailbox`
 
 Возвращает почтовый ящик из репозитория по его имени.
+
+#### `mailboxRepository.add(mailbox: Mailbox): boolean`
+
+Добавляет отключенный почтовый ящик в репозиторий и возвращает `true`. Возвращает `false` в случаях, если почтовый ящик уже в репозитории или репозиторий содержит почтовый ящик с таким же именем. Аналогичного эффекта можно добиться запуском метода [`enable` почтового ящика](#mailbox-enable-boolean).
+
+#### `mailboxRepository.remove(mailbox: Mailbox): boolean`
+
+Удаляет включенный почтовый ящик из репозитория и возвращает `true`. Возвращает `false` в случае, если почтовый ящик отключен. Аналогичного эффекта можно добиться запуском метода [`disable` почтового ящика](#mailbox-disable-boolean).
 
 #### `mailboxRepository.drop(): void`
 

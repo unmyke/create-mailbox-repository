@@ -47,6 +47,70 @@ describe('createMailboxRepository::', () => {
     })
   })
 
+  describe('#remove', () => {
+    let remove, getAll
+
+    beforeEach(() => {
+      mailbox = createMailbox(mailboxName, defaultSend)
+      remove = mailboxRepository.remove
+      getAll = mailboxRepository.getAll
+    })
+
+    test('should remove mailbox from repository', () => {
+      expect(getAll()).toContain(mailbox)
+      remove(mailbox)
+      expect(getAll()).not.toContain(mailbox)
+    })
+
+    test('should disable mailbox', () => {
+      expect(mailbox.isEnabled()).toBeTruthy()
+      remove(mailbox)
+      expect(mailbox.isDisabled()).toBeTruthy()
+    })
+
+    test('should do nothing when passed removed mailbox', () => {
+      mailbox.disable()
+      expect(getAll()).not.toContain(mailbox)
+      expect(mailbox.isDisabled()).toBeTruthy()
+      remove(mailbox)
+      expect(getAll()).not.toContain(mailbox)
+      expect(mailbox.isDisabled()).toBeTruthy()
+    })
+  })
+
+  describe('#add', () => {
+    let add, getAll
+
+    
+    beforeEach(() => {
+      add = mailboxRepository.add
+      getAll = mailboxRepository.getAll
+      mailbox = createMailbox(mailboxName, defaultSend)
+    })
+
+    test('should add disabled mailbox to repository', () => {
+      mailbox.disable()
+      expect(getAll()).not.toContain(mailbox)
+      add(mailbox)
+      expect(getAll()).toContain(mailbox)
+    })
+
+    test('should enable mailbox', () => {
+      mailbox.disable()
+      expect(mailbox.isDisabled()).toBeTruthy()
+      add(mailbox)
+      expect(mailbox.isEnabled()).toBeTruthy()
+    })
+
+    test('should do nothing when passed added mailbox', () => {
+      expect(getAll()).toContain(mailbox)
+      expect(mailbox.isEnabled()).toBeTruthy()
+      add(mailbox)
+      expect(getAll()).toContain(mailbox)
+      expect(mailbox.isEnabled()).toBeTruthy()
+    })
+  })
+
   describe('#createMailbox', () => {
     beforeEach(() => {
       mailbox = createMailbox(mailboxName, defaultSend)
@@ -67,6 +131,7 @@ describe('createMailboxRepository::', () => {
       expect(sameMailbox).toBe(mailbox)
     })
   })
+
   describe('Mailbox::', () => {
     describe('#isEnabled', () => {
       beforeEach(() => {
