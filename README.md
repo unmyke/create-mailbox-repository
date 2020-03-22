@@ -1,4 +1,4 @@
-# Mailbox
+# createMailboxRepository
 
 ## [Тестовое задание](https://codepen.io/csssr/pen/QPyPrz?editors=1010) [CSSSR](https://csssr.com/)
 
@@ -16,26 +16,26 @@
 ### Установка
 
 ```console
-git clone git@github.com:unmyke/create-mailbox-repository.git
-cd ./create-mailbox-repository
-yarn install
+  git clone git@github.com:unmyke/create-mailbox-repository.git
+  cd ./create-mailbox-repository
+  yarn install
 ```
 
 ### Запуск тестов
 
 ```console
-yarn test
+  yarn test
 ```
 
 ### Примеры использования
 
 ```console
-yarn usecases
+  yarn usecases
 ```
 
 ## Описание пакета
 
-Пакет экспортирует функцию-фабрику `createMailboxRepository`, возвращающую репозиторий почтовых ящиков. Для более подробного описание см. [раздел API](#api)
+Пакет экспортирует функцию-фабрику `createMailboxRepository`, возвращающую репозиторий почтовых ящиков. Для более подробного описание см. [раздел API](#createmailboxrepository-mailboxrepository)
 
 ### Дополнительные задания:
 
@@ -50,6 +50,8 @@ yarn usecases
 
 Для устранения данных проблем пакет экспортирует фабричную функцию `createMailboxRepository`. Возвращенный фабрикой репозиторий имеет фабричный метод `createMailbox`, который заменяет конструктор предложенного заданием класса `Mailbox`.
 
+Значительно обогащено [API почтового ящика](#mailbox).
+
 #### Переиспользование
 
 Применение парадигмы функционального программирования позволяет разбить кодовую базу на переиспользуемые и простые функции. Наиболее используемой функцией является фабрика по созданию списков: на нижнем уровне список используется абстракцией репозитория почтовых ящиков, внутри абстракции почтового ящика — для хранения pre-хуков и notify-хуков.
@@ -63,25 +65,29 @@ type Predicate = (msg: string) => boolean
 type NotifyHook = (msg: string) => void
 
 type Mailbox {
-  isEnabled: () => boolean
-  getName: () => string
-  sendMail: (msg: string) => void
-  getPreHooks: Array<Predicate>
-  pre: (preHook: Predicate) => void
-  addPreHook: (preHook: Predicate) => void
-  removePreHook: (preHook: Predicate) => void
-  getNotifyHooks: () => Array<NotifyHook>
-  notify: (notifyHook: NotifyHook) => void
-  addNotifyHook: (notifyHook: NotifyHook) => void
-  removeNotifyHook: (notifyHook: NotifyHook) => void
-  disable: () => viod
+  readonly getName: () => string;
+  readonly isEnabled: () => boolean;
+  readonly isDisabled: () => boolean;
+  readonly enable: () => boolean;
+  readonly disable: () => boolean;
+  readonly sendMail: (msg: string) => void;
+  readonly getPreHooks: Predicate[];
+  readonly pre: (preHook: Predicate) => void;
+  readonly addPreHook: (preHook: Predicate) => void;
+  readonly removePreHook: (preHook: Predicate) => void;
+  readonly dropPreHooks: () => void;
+  readonly getNotifyHooks: () => NotifyHook[];
+  readonly notify: (notifyHook: NotifyHook) => void;
+  readonly addNotifyHook: (notifyHook: NotifyHook) => void;
+  readonly removeNotifyHook: (notifyHook: NotifyHook) => void;
+  readonly dropNotifyHooks: () => void;
 }
 
 type MailboxRepository = {
-  createMailbox: (name: string, send?) => Mailbox
-  getAll: () => Mailbox[]
-  getByName: (name: string) => Mailbox
-  drop: () => void
+  readonly createMailbox: (name: string, send?) => Mailbox;
+  readonly getAll: () => Mailbox[];
+  readonly getByName: (name: string) => Mailbox;
+  readonly drop: () => void;
 }
 ```
 
@@ -107,11 +113,11 @@ const sameMailbox = mailboxRepository.createMailbox(name)
 console.log(mailbox === sameMailbox) // Output: true
 ```
 
-#### `mailboxRepository.getAll(): Array<Mailbox>`
+#### `mailboxRepository.getAll(): Mailbox[]`
 
 Возвращает массив почтовых ящиков репозитория.
 
-#### `mailboxRepository.getByName: (name: string) => Mailbox`
+#### `mailboxRepository.getByName(name: string): Mailbox`
 
 Возвращает почтовый ящик из репозитория по его имени.
 
@@ -119,31 +125,43 @@ console.log(mailbox === sameMailbox) // Output: true
 
 Удаляет все почтовые ящики из репозитория.
 
-### Mailbox
+### `Mailbox`
 
 Созданный фабричным методом `createMailbox` объект, предоставляющий абстракцию почтового ящика, содержит только методы, изменяющие его состояние, и не предоставляет возможности изменять состояние (приватные поля) напрямую.
 
-#### `getName(): string`
+#### `mailbox.getName(): string`
 
 Возвращает имя почтового ящика.
 
-#### `isEnabled(): boolean`
+#### `mailbox.isEnabled(): boolean`
 
 Возвращает `true` в случае наличия почтового ящика в репозитории почтовых ящиков.
 
-#### `disable(): void`
+#### `mailbox.isDisabled(): boolean`
 
-Отключает почтовый ящик. При этом ящик теряет возможность отправлять письма, удаляются добавленные pre- и notify-хуки, управление списком pre- и notify-хуков так же блокируется. Отключенный ящик удаляется из репозитория почтовых ящиков, что предоставляет возможность создать и добавить в репозиторий новый почтовый ящик с таким же именем
+Возвращает `true` в случае, если почтовый ящик удален из репозитория почтовых ящиков.
 
-#### `mailbox.getPreHooks(): Array<Predicate>`
+#### `mailbox.enable(): boolean`
 
-Возвращает список pre-хуков почтового ящика (подробнее о pre-хуках в описании метода [`addPreHook`](#addprehookprehook-predicate-void)), запускаемых перед отправкой письма методом [`sendMail`](#sendmailmsg-string-void).
+Добавляет удаленный почтовый ящик в репозиторий и возвращает `true` или `false` в случае, если почтовый ящик с таким же именем существует в репозитории.
+
+#### `mailbox.disable(): boolean`
+
+Удаляет почтовый ящик из репозитория и возвращает `true` или `false` в случае, если почтовый ящик уже удален из репозитория. Удаленный ящик теряет возможность отправлять письма, управлять списком pre- и notify-хуков. После удаления из репозитория почтовых ящиков появляется возможность создать и добавить в репозиторий новый почтовый ящик с таким же именем.
+
+#### `mailbox.sendMail(msg: string): void`
+
+Отправляет переданное в метод сообщение. Перед отправкой запускаются pre-хуки (предикаты соответствия сообщения критерию) почтового ящика и отправка письма произойдет только в случае, если все предикаты вернут true. После отправки произойдет запуск notify-хуков в очередности их добавления.
+
+#### `mailbox.getPreHooks(): Predicate[]`
+
+Возвращает список pre-хуков почтового ящика (подробнее о pre-хуках в описании метода [`addPreHook`](#mailbox-addprehook-prehook-predicate-void), запускаемых перед отправкой письма методом [`sendMail`](#mailbox-sendmailmsg-string-void).
 
 #### `mailbox.pre(preHook: Predicate): void`
 
 **deprecated**
 
-Метод заменен на [`addPreHook`](#addprehookprehook-predicate-void). Тем не менее метод запускает `addPreHook` и выдает предупреждающее сообщение о неактуальности метода.
+Метод заменен на [`addPreHook`](#mailbox-addprehook-prehook-predicate-void). Тем не менее метод запускает `addPreHook` и выдает предупреждающее сообщение о неактуальности метода.
 
 #### `mailbox.addPreHook(preHook: Predicate): void`
 
@@ -161,7 +179,11 @@ console.log(mailbox === sameMailbox) // Output: true
 
 Удаляет переданный методу pre-хук.
 
-#### `mailbox.getNotifyHooks(): Array<NotifyHook>`
+#### `mailbox.dropPreHooks(): void`
+
+Удаляет все pre-хуки.
+
+#### `mailbox.getNotifyHooks(): NotifyHook[]`
 
 Возвращает список notify-хуков, запускаемых после отправки письма.
 
@@ -169,7 +191,7 @@ console.log(mailbox === sameMailbox) // Output: true
 
 **deprecated**
 
-Метод заменен на [`addNotifyHook`](#addnotifyhooknotifyhook-notifyhook-void). Тем не менее метод запускает `addNotifyHook` и выдает предупреждающее сообщение о неактуальности метода.
+Метод заменен на [`addNotifyHook`](#mailbox-addnotifyhook-notifyhook-notifyhook-void). Тем не менее метод запускает `addNotifyHook` и выдает предупреждающее сообщение о неактуальности метода.
 
 #### `mailbox.addNotifyHook(notifyHook: NotifyHook): void`
 
@@ -179,6 +201,6 @@ console.log(mailbox === sameMailbox) // Output: true
 
 Удаляет переданный методу notify-хук.
 
-#### `mailbox.sendMail(msg: string): void`
+#### `mailbox.dropNotifyHooks(): void`
 
-Отправляет переданное в метод сообщение. Перед отправкой запускаются pre-хуки (предикаты соответствия сообщения критерию) почтового ящика и отправка письма произойдет только в случае, если все предикаты вернут true. После отправки произойдет запуск notify-хуков в очередности их добавления.
+Удаляет все notify-хуки.
