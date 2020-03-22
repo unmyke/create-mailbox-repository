@@ -4,19 +4,29 @@ export enum STATE {
 }
 
 export type StatePredicate = () => boolean
-export type Disable = () => void
+export type StateProcessor = () => void
 
-const createState = (): { isEnabled: StatePredicate; disable: Disable } => {
+const createState = (): {
+  isEnabled: StatePredicate
+  isDisabled: StatePredicate
+  enable: StateProcessor
+  disable: StateProcessor
+} => {
   let state: STATE = STATE.ENABLED
 
   const isEnabled = (): boolean => {
     return state === STATE.ENABLED
   }
+  const isDisabled = (): boolean => {
+    return !isEnabled()
+  }
+  const enable = (): void => {
+    state = STATE.ENABLED
+  }
   const disable = (): void => {
     state = STATE.DISABLED
   }
-
-  return { isEnabled, disable }
+  return { isEnabled, isDisabled, enable, disable }
 }
 
 export default createState

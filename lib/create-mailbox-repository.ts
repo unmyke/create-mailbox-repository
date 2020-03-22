@@ -30,17 +30,35 @@ const createMailboxRepository = (): MailboxRepository => {
 
     // construct new mailbox
     const mailboxFactory = createMailboxFactory()
-    const { disable: disableMailbox, ...restMailbox } = mailboxFactory(
-      name,
-      send,
-    )
-    const disable = (): void => {
-      disableMailbox()
+    const {
+      enable: enableMailbox,
+      disable: disableMailbox,
+      ...restMailbox
+    } = mailboxFactory(name, send)
+    const disable = (): boolean => {
+      if (restMailbox.isDisabled()) {
+        return false
+      }
 
       removeMailbox(mailbox)
+      return disableMailbox()
     }
+    const enable = (): boolean => {
+      if (getByName(restMailbox.getName()) !== undefined) {
+        return false
+      }
+
+      if (restMailbox.isEnabled()) {
+        return false
+      }
+
+      addMailbox(mailbox)
+      return enableMailbox()
+    }
+
     const mailbox = {
       ...restMailbox,
+      enable,
       disable,
     }
     addMailbox(mailbox)

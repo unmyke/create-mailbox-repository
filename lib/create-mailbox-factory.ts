@@ -15,7 +15,12 @@ const createMailboxFactory = (): MailboxFactory => {
       return name
     }
 
-    const { isEnabled, disable } = createState()
+    const {
+      isEnabled,
+      isDisabled,
+      enable: enableState,
+      disable: disableState,
+    } = createState()
     const callIfMailboxEnabled = createCallIfEnabled(isEnabled)
 
     const {
@@ -23,7 +28,7 @@ const createMailboxFactory = (): MailboxFactory => {
       addPredicate: addPreHook,
       removePredicate: removePreHook,
       checkMsg,
-      dropPredicates,
+      dropPredicates: dropPreHooks,
     } = createPredicateList(callIfMailboxEnabled)
     const {
       getNotifyHooks: getNotifyHooks,
@@ -44,23 +49,33 @@ const createMailboxFactory = (): MailboxFactory => {
       callIfMailboxEnabled,
     })
 
+    const enable = (): boolean => {
+      enableState()
+      return true
+    }
+
+    const disable = (): boolean => {
+      disableState()
+      return true
+    }
+
     const mailbox = {
       isEnabled,
+      isDisabled,
       getName,
       sendMail,
       getPreHooks,
       addPreHook,
       pre,
       removePreHook,
+      dropPreHooks,
       getNotifyHooks,
       addNotifyHook,
       notify,
       removeNotifyHook,
-      disable: (): void => {
-        dropPredicates()
-        dropNotifyHooks()
-        disable()
-      },
+      enable,
+      dropNotifyHooks,
+      disable,
     }
 
     return mailbox

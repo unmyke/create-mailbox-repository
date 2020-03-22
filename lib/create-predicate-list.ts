@@ -19,14 +19,11 @@ export type PredicateList = {
 }
 
 const createPredicateList = (
-  callIfEnabled: CallIfEnabled<PredicateSetter>,
+  callIfEnabled: CallIfEnabled<PredicateSetter | ListProcessor>,
 ): PredicateList => {
-  const {
-    get: getPredicates,
-    add,
-    remove,
-    drop: dropPredicates,
-  } = createListHandlers<Predicate>()
+  const { get: getPredicates, add, remove, drop } = createListHandlers<
+    Predicate
+  >()
 
   const checkMsg = (msg: string): boolean => {
     const predicates = getPredicates()
@@ -40,6 +37,7 @@ const createPredicateList = (
 
   const addPredicate = callIfEnabled(add)
   const removePredicate = callIfEnabled(remove)
+  const dropPredicates = callIfEnabled(drop)
 
   return {
     getPredicates,
