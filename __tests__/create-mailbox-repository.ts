@@ -182,6 +182,58 @@ describe('createMailboxRepository::', () => {
       })
     })
 
+    describe('#enable', () => {
+      beforeEach(() => {
+        mailbox = createMailbox(mailboxName, defaultSend)
+        mailbox.disable()
+      })
+
+      test('should return true when mailbox is disabled', () => {
+        expect(mailbox.enable()).toBeTruthy()
+      })
+      
+      test('should return false when mailbox already enabled', () => {
+        mailbox.enable()
+        expect(mailbox.enable()).toBeFalsy()
+      })
+
+      test('should not change state when mailbox already enabled', () => {
+        mailbox.enable()
+        expect(mailbox.isEnabled()).toBeTruthy()
+        mailbox.enable()
+        expect(mailbox.isEnabled()).toBeTruthy()
+      })
+
+      test('should check mailbox have pre-hooks after enable', () => {
+        mailbox.addPreHook(() => true)
+        mailbox.addPreHook(() => true)
+        mailbox.addPreHook(() => true)
+        const preHooksBefore = mailbox.getPreHooks()
+        mailbox.enable()
+        expect(mailbox.getPreHooks()).toEqual(preHooksBefore)
+      })
+
+      test('should check mailbox have notify-hooks after enable', () => {
+        mailbox.addNotifyHook(() => {})
+        mailbox.addNotifyHook(() => {})
+        mailbox.addNotifyHook(() => {})
+        const notifyHooksBefore = mailbox.getNotifyHooks()
+        mailbox.enable()
+        expect(mailbox.getNotifyHooks()).toEqual(notifyHooksBefore)
+      })
+      
+      test('should return false when mailbox with same name already exists in mailbox repository', () => {
+        createMailbox(mailboxName)
+        expect(mailbox.enable()).toBeFalsy()
+      })
+
+      test('should not add to mailbox repository when mailbox with same name already exists in mailbox repository', () => {
+        createMailbox(mailboxName)
+        mailbox.enable()
+        expect(mailboxRepository.getAll()).not.toContain(mailbox)
+      })
+    })
+
     describe('#sendMail', () => {
       let sendMockFn
       const msg = 'msg'
