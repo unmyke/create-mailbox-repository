@@ -3,7 +3,7 @@ import { PredicatesGetter, PredicateSetter } from './create-predicate-list'
 import { NotifyHooksGetter, NotifyHookSetter } from './create-notify-hook-list'
 import { MsgProcessor } from './create-send-mail'
 
-export type MailboxProcessor = () => void
+export type StateProcessor = () => boolean
 export type NameGetter = () => string
 
 type Mailbox = {
@@ -19,7 +19,7 @@ type Mailbox = {
   readonly notify: NotifyHookSetter
   readonly addNotifyHook: NotifyHookSetter
   readonly removeNotifyHook: NotifyHookSetter
-  readonly disable: MailboxProcessor
+  readonly disable: StateProcessor
 }
 
 export default Mailbox

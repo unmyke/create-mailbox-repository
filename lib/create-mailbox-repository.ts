@@ -34,10 +34,13 @@ const createMailboxRepository = (): MailboxRepository => {
       name,
       send,
     )
-    const disable = (): void => {
-      disableMailbox()
+    const disable = (): boolean => {
+      if (restMailbox.isDisabled()) {
+        return false
+      }
 
       removeMailbox(mailbox)
+      return disableMailbox()
     }
     const mailbox = {
       ...restMailbox,

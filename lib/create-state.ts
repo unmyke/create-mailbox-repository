@@ -4,12 +4,12 @@ export enum STATE {
 }
 
 export type StatePredicate = () => boolean
-export type Disable = () => void
+export type StateProcessor = () => void
 
 const createState = (): {
   isEnabled: StatePredicate
   isDisabled: StatePredicate
-  disable: Disable
+  disable: StateProcessor
 } => {
   let state: STATE = STATE.ENABLED
 

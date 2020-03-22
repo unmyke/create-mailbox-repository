@@ -15,7 +15,7 @@ const createMailboxFactory = (): MailboxFactory => {
       return name
     }
 
-    const { isEnabled, isDisabled, disable } = createState()
+    const { isEnabled, isDisabled, disable: disableState } = createState()
     const callIfMailboxEnabled = createCallIfEnabled(isEnabled)
 
     const {
@@ -44,6 +44,11 @@ const createMailboxFactory = (): MailboxFactory => {
       callIfMailboxEnabled,
     })
 
+    const disable = (): boolean => {
+      disableState()
+      return true
+    }
+
     const mailbox = {
       isEnabled,
       isDisabled,
@@ -57,11 +62,7 @@ const createMailboxFactory = (): MailboxFactory => {
       addNotifyHook,
       notify,
       removeNotifyHook,
-      disable: (): void => {
-        dropPredicates()
-        dropNotifyHooks()
-        disable()
-      },
+      disable,
     }
 
     return mailbox
