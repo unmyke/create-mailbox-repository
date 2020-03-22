@@ -19,6 +19,7 @@ type Mailbox = {
   readonly notify: NotifyHookSetter
   readonly addNotifyHook: NotifyHookSetter
   readonly removeNotifyHook: NotifyHookSetter
+  readonly enable: StateProcessor
   readonly disable: StateProcessor
 }
 
