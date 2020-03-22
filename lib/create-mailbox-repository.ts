@@ -1,15 +1,8 @@
 import Mailbox from './mailbox'
-import createMailboxList, { MailboxGetter } from './create-mailbox-list'
+import createMailboxList from './create-mailbox-list'
 import { MsgProcessor } from './create-send-mail'
-import createMailboxFactory, { MailboxFactory } from './create-mailbox-factory'
-import { ListProcessor } from './create-list-handlers'
-
-export type MailboxRepository = {
-  createMailbox: MailboxFactory
-  getAll: () => Mailbox[]
-  getByName: MailboxGetter
-  drop: ListProcessor
-}
+import createMailboxFactory from './create-mailbox-factory'
+import MailboxRepository from './mailbox-repository'
 
 const createMailboxRepository = (): MailboxRepository => {
   const {
@@ -66,10 +59,15 @@ const createMailboxRepository = (): MailboxRepository => {
     return mailbox
   }
 
+  const add = ({ enable }: Mailbox): boolean => enable()
+  const remove = ({ disable }: Mailbox): boolean => disable()
+
   return {
     createMailbox,
     getAll,
     getByName,
+    add,
+    remove,
     drop,
   }
 }
