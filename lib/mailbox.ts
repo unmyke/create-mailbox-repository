@@ -8,6 +8,7 @@ export type NameGetter = () => string
 
 type Mailbox = {
   readonly isEnabled: StatePredicate
+  readonly isDisabled: StatePredicate
   readonly getName: NameGetter
   readonly sendMail: MsgProcessor
   readonly getPreHooks: PredicatesGetter
