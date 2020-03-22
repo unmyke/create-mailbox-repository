@@ -10,12 +10,14 @@ import createMailboxRepository, {
 } from '../lib'
 import { MailboxFactory } from '../lib/create-mailbox-factory'
 import defaultSend from './lib/default-send'
+import { usePreHookMock, useNotifyHookMock } from './lib'
 
 describe('createMailboxRepository::', () => {
   let mailboxRepository: MailboxRepository
   let mailbox: Mailbox
   let createMailbox: MailboxFactory
   const mailboxName = 'mailbox name'
+  const msg ='msg'
 
   beforeEach(() => {
     mailboxRepository = createMailboxRepository()
@@ -99,24 +101,80 @@ describe('createMailboxRepository::', () => {
     describe('#disable', () => {
       beforeEach(() => {
         mailbox = createMailbox(mailboxName, defaultSend)
+      })
+
+      test('should return true when mailbox is enabled', () => {
+        expect(mailbox.disable()).toBeTruthy()
+      })
+      
+      test('should return false when mailbox already disabled', () => {
         mailbox.disable()
+        expect(mailbox.disable()).toBeFalsy()
       })
 
-      test('should check mailbox state to be "disable"', () => {
-        expect(mailbox.isEnabled()).toBeFalsy()
+      test('should not change state when mailbox already disabled', () => {
+        mailbox.disable()
+        expect(mailbox.isDisabled()).toBeTruthy()
+        mailbox.disable()
+        expect(mailbox.isDisabled()).toBeTruthy()
       })
 
-      test('should check mailbox have no hooks', () => {
-        expect(mailbox.getPreHooks()).toHaveLength(0)
-        expect(mailbox.getNotifyHooks()).toHaveLength(0)
+      describe('disabled mailbox behavior', () => {
+        describe('sendMail method behavior', () => {
+          test('should block sendMail', () => {
+            const sendHook = jest.fn((msg: Msg) => {})
+            mailbox = createMailbox(mailboxName, sendHook)
+
+            mailbox.disable()
+            mailbox.sendMail(msg)
+            expect(sendHook.mock.calls).toHaveLength(0)
+          })
+        })
+
+        test('should block pre-hooks call when call sendMethod', () => {
+          const { mockFn, createHook } = usePreHookMock()
+          mailbox.addPreHook(createHook(true))
+          mailbox.addPreHook(createHook(true))
+          mailbox.addPreHook(createHook(true))
+          
+          mailbox.disable()
+          mailbox.sendMail(msg)
+          expect(mockFn.mock.calls).toHaveLength(0)
+        })
+
+        test('should block pre-hooks call when call sendMethod ', () => {
+          const { mockFn, createHook } = useNotifyHookMock()
+          mailbox.addNotifyHook(createHook(1))
+          mailbox.addNotifyHook(createHook(2))
+          mailbox.addNotifyHook(createHook(3))
+          
+          mailbox.disable()
+          mailbox.sendMail(msg)
+          expect(mockFn.mock.calls).toHaveLength(0)
+        })
+      })
+      test('should block addPreHook method call', () => {
+        mailbox.addPreHook(() => true)
+        mailbox.addPreHook(() => false)
+        const preHooksBefore = mailbox.getPreHooks()
+        mailbox.disable()
+        mailbox.addPreHook(() => true)
+        
+        expect(mailbox.getPreHooks()).toEqual(preHooksBefore)
       })
 
-      test('should check mailbox have no hooks', () => {
-        expect(mailbox.getPreHooks()).toHaveLength(0)
-        expect(mailbox.getNotifyHooks()).toHaveLength(0)
-      })
+      test('should block addNotifyHook method call', () => {
+        mailbox.addNotifyHook(() => {})
+        mailbox.addNotifyHook(() => {})
+        const notifyHooksBefore = mailbox.getNotifyHooks()
 
+        mailbox.disable()
+        mailbox.addNotifyHook(() => {})
+        expect(mailbox.getNotifyHooks()).toEqual(notifyHooksBefore)
+      })
+      
       test('should check ability to create new mailbox with same name', () => {
+        mailbox.disable()
         const sameMailbox = createMailbox(mailboxName)
 
         expect(sameMailbox).not.toBe(mailbox)
@@ -131,23 +189,14 @@ describe('createMailboxRepository::', () => {
       beforeEach(() => {
         sendMockFn = jest.fn()
 
-        mailbox = createMailbox(mailboxName, (msg: Msg) => {
-          sendMockFn(msg)
-        })
+        mailbox = createMailbox(mailboxName, sendMockFn)
       })
 
       test('should call send hook', () => {
         mailbox.sendMail(msg)
 
-        expect(sendMockFn.mock.calls.length).toBe(1)
+        expect(sendMockFn.mock.calls).toHaveLength(1)
         expect(sendMockFn.mock.calls[0][0]).toBe(msg)
-      })
-
-      test('should not call send hook is not when mailbox is disabled', () => {
-        mailbox.disable()
-        mailbox.sendMail(msg)
-
-        expect(sendMockFn.mock.calls.length).toBe(0)
       })
     })
 
@@ -220,14 +269,12 @@ describe('createMailboxRepository::', () => {
         })
 
         test('should not add notify hooks when disabled', () => {
-          mailbox.disable()
           mailbox.addNotifyHook(notifyHook1)
           mailbox.addNotifyHook(notifyHook2)
+          mailbox.disable()
           mailbox.addNotifyHook(notifyHook3)
-          mailbox.sendMail(msg)
 
-          expect(mailbox.getNotifyHooks()).toHaveLength(0)
-          expect(notifyMockFn.mock.calls.length).toBe(0)
+          expect(mailbox.getNotifyHooks()).toHaveLength(2)
         })
       })
     })
@@ -248,16 +295,19 @@ describe('createMailboxRepository::', () => {
       describe('manage pre hooks', () => {
         beforeEach(() => {
           mailbox = createMailbox(mailboxName, defaultSend)
+        })
+        test('should count of added pre hooks', () => {
           mailbox.addPreHook(predicate1)
           mailbox.addPreHook(predicate2)
           mailbox.addPreHook(predicate3)
-        })
-        test('should count of added pre hooks', () => {
           const predicates = mailbox.getPreHooks()
           expect(predicates).toHaveLength(3)
           expect(predicates).toEqual([predicate1, predicate2, predicate3])
         })
         test('should count of pre hooks when second hook is removed', () => {
+          mailbox.addPreHook(predicate1)
+          mailbox.addPreHook(predicate2)
+          mailbox.addPreHook(predicate3)
           mailbox.removePreHook(predicate2)
 
           const predicates = mailbox.getPreHooks()
@@ -265,6 +315,9 @@ describe('createMailboxRepository::', () => {
           expect(predicates).toEqual([predicate1, predicate3])
         })
         test('should count of added pre hooks when first andl last hooks is removed', () => {
+          mailbox.addPreHook(predicate1)
+          mailbox.addPreHook(predicate2)
+          mailbox.addPreHook(predicate3)
           mailbox.removePreHook(predicate1)
           mailbox.removePreHook(predicate3)
 
@@ -273,6 +326,9 @@ describe('createMailboxRepository::', () => {
           expect(predicates).toEqual([predicate2])
         })
         test('should return no pre hooks when all hooks are removed', () => {
+          mailbox.addPreHook(predicate1)
+          mailbox.addPreHook(predicate2)
+          mailbox.addPreHook(predicate3)
           mailbox.removePreHook(predicate1)
           mailbox.removePreHook(predicate2)
           mailbox.removePreHook(predicate3)
@@ -280,14 +336,14 @@ describe('createMailboxRepository::', () => {
           const predicates = mailbox.getPreHooks()
           expect(predicates).toHaveLength(0)
         })
-        test('should return no pre hooks when mailbox is disabled', () => {
-          mailbox.disable()
+        test('should return pre hooks when mailbox is disabled', () => {
           mailbox.addPreHook(predicate1)
           mailbox.addPreHook(predicate2)
+          mailbox.disable()
           mailbox.addPreHook(predicate3)
 
           const predicates = mailbox.getPreHooks()
-          expect(predicates).toHaveLength(0)
+          expect(predicates).toHaveLength(2)
         })
       })
 
