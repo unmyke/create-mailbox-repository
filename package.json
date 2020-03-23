@@ -1,6 +1,6 @@
 {
   "name": "create-mailbox-repository",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "./dist",
   "license": "MIT",
   "scripts": {
@@ -12,20 +12,22 @@
     "lint": "yarn eslint lib/**/*.ts"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^8.3.4",
     "@types/jest": "^25.1.3",
-    "@types/node": "^13.7.4",
+    "@types/node": "^13.9.3",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
+    "commitlint": "^8.3.5",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.3",
     "jest": "^25.1.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.1",
     "ts-jest": "^25.2.1",
-    "ts-node": "^8.7.0",
+    "ts-node": "^8.8.1",
     "tsc": "^1.20150623.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.3"
   },
   "husky": {
     "hooks": {
@@ -34,8 +36,5 @@
       "pre-push": "yarn lint && yarn typecheck"
     }
   },
-  "dependencies": {
-    "@commitlint/config-conventional": "^8.3.4",
-    "commitlint": "^8.3.5"
-  }
+  "dependencies": {}
 }
