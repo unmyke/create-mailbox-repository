@@ -4,10 +4,10 @@ export type ListSetter<Item> = (item: Item) => void
 export type ListProcessor = () => void
 
 export type ListHandlers<Item> = {
-  get: ListGetter<Item>;
-  add: ListSetter<Item>;
-  remove: ListSetter<Item>;
-  drop: ListProcessor;
+  get: ListGetter<Item>
+  add: ListSetter<Item>
+  remove: ListSetter<Item>
+  drop: ListProcessor
 }
 
 const createListHandlers = <Item>(): ListHandlers<Item> => {
@@ -32,7 +32,7 @@ const createListHandlers = <Item>(): ListHandlers<Item> => {
     get,
     add,
     remove,
-    drop
+    drop,
   }
 }
 

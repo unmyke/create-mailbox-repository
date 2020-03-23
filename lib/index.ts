@@ -1,4 +1,6 @@
-export { default, createMailbox, getMailboxes, dropMailboxes } from './mailbox'
+export { default } from './create-mailbox-repository'
+export { default as MailboxRepository } from './mailbox-repository'
+export { default as Mailbox } from './mailbox'
 export { NotifyHook } from './create-notify-hook-list'
 export { Msg } from './create-send-mail'
 export { Predicate } from './create-predicate-list'

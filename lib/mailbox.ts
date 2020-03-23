@@ -1,52 +1,29 @@
 import { StatePredicate } from './create-state'
 import { PredicatesGetter, PredicateSetter } from './create-predicate-list'
 import { NotifyHooksGetter, NotifyHookSetter } from './create-notify-hook-list'
-import createMailboxListFactory, {
-  MailboxProcessor,
-  NameGetter
-} from './create-mailbox-list-factory'
 import { MsgProcessor } from './create-send-mail'
-import identity from './identity'
+import { ListProcessor as HooksProcessor } from './create-list-handlers'
 
-export type MailboxConstructor = (mailbox: Mailbox) => Mailbox
+export type StateProcessor = () => boolean
+export type NameGetter = () => string
 
-const {
-  createMailboxFactory,
-  getMailboxes,
-  dropMailboxes
-} = createMailboxListFactory()
-
-const instantiateMailbox = createMailboxFactory(
-  (mailbox: Mailbox): Mailbox => {
-    const mailboxInstance = Object.create(Mailbox.prototype)
-
-    Object.getOwnPropertyNames(mailbox).forEach((methodName: string): void => {
-      mailboxInstance[methodName] = mailbox[methodName]
-    })
-    return mailboxInstance
-  }
-)
-const createMailbox = createMailboxFactory(identity)
-
-class Mailbox {
-  isEnabled: StatePredicate
-  getName: NameGetter
-  sendMail: MsgProcessor
-  getPreHooks: PredicatesGetter
-  pre: PredicateSetter
-  addPreHook: PredicateSetter
-  removePreHook: PredicateSetter
-  getNotifyHooks: NotifyHooksGetter
-  notify: NotifyHookSetter
-  addNotifyHook: NotifyHookSetter
-  removeNotifyHook: NotifyHookSetter
-  disable: MailboxProcessor
-
-  constructor(name: string, send?: MsgProcessor) {
-    const mailbox = instantiateMailbox(name, send)
-    return mailbox
-  }
+type Mailbox = {
+  readonly isEnabled: StatePredicate
+  readonly isDisabled: StatePredicate
+  readonly getName: NameGetter
+  readonly sendMail: MsgProcessor
+  readonly getPreHooks: PredicatesGetter
+  readonly pre: PredicateSetter
+  readonly addPreHook: PredicateSetter
+  readonly removePreHook: PredicateSetter
+  readonly dropPreHooks: HooksProcessor
+  readonly getNotifyHooks: NotifyHooksGetter
+  readonly notify: NotifyHookSetter
+  readonly addNotifyHook: NotifyHookSetter
+  readonly removeNotifyHook: NotifyHookSetter
+  readonly dropNotifyHooks: HooksProcessor
+  readonly enable: StateProcessor
+  readonly disable: StateProcessor
 }
 
 export default Mailbox
-export { createMailbox, dropMailboxes, getMailboxes }

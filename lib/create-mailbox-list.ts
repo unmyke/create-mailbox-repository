@@ -1,7 +1,7 @@
 import createListHandlers, {
   ListGetter,
   ListSetter,
-  ListProcessor
+  ListProcessor,
 } from './create-list-handlers'
 import Mailbox from './mailbox'
 
@@ -10,20 +10,20 @@ export type MailboxListGetter = ListGetter<Mailbox>
 export type MailboxSetter = ListSetter<Mailbox>
 export type MailboxesProccesor = (
   origMailbox: Mailbox,
-  newMailbox: Mailbox
+  newMailbox: Mailbox,
 ) => void
 
 const createMailboxList = (): {
-  getMailboxes: MailboxListGetter;
-  getMailboxByName: MailboxGetter;
-  addMailbox: MailboxSetter;
-  removeMailbox: MailboxSetter;
-  dropMailboxes: ListProcessor;
+  getMailboxes: MailboxListGetter
+  getMailboxByName: MailboxGetter
+  addMailbox: MailboxSetter
+  removeMailbox: MailboxSetter
+  dropMailboxes: ListProcessor
 } => {
   const {
     get: getMailboxes,
     add: addMailbox,
-    remove: removeMailbox
+    remove: removeMailbox,
   } = createListHandlers<Mailbox>()
 
   const getMailboxByName = (name: string): Mailbox => {
@@ -47,7 +47,7 @@ const createMailboxList = (): {
     getMailboxByName,
     addMailbox,
     removeMailbox,
-    dropMailboxes
+    dropMailboxes,
   }
 }
 

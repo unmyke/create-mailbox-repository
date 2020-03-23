@@ -2,7 +2,7 @@ import { Msg } from './create-send-mail'
 import createListHandlers, {
   ListGetter,
   ListSetter,
-  ListProcessor
+  ListProcessor,
 } from './create-list-handlers'
 import { CallIfEnabled } from './create-call-if-enabled'
 
@@ -11,22 +11,19 @@ export type PredicatesGetter = ListGetter<Predicate>
 export type PredicateSetter = ListSetter<Predicate>
 
 export type PredicateList = {
-  getPredicates: PredicatesGetter;
-  addPredicate: PredicateSetter;
-  removePredicate: PredicateSetter;
-  checkMsg: Predicate;
-  dropPredicates: ListProcessor;
+  getPredicates: PredicatesGetter
+  addPredicate: PredicateSetter
+  removePredicate: PredicateSetter
+  checkMsg: Predicate
+  dropPredicates: ListProcessor
 }
 
 const createPredicateList = (
-  callIfEnabled: CallIfEnabled<PredicateSetter | ListProcessor>
+  callIfEnabled: CallIfEnabled<PredicateSetter | ListProcessor>,
 ): PredicateList => {
-  const {
-    get: getPredicates,
-    add,
-    remove,
-    drop: dropPredicates
-  } = createListHandlers<Predicate>()
+  const { get: getPredicates, add, remove, drop } = createListHandlers<
+    Predicate
+  >()
 
   const checkMsg = (msg: string): boolean => {
     const predicates = getPredicates()
@@ -34,19 +31,20 @@ const createPredicateList = (
       (prevPredicateCheck: boolean, curPredicate: Predicate): boolean => {
         return prevPredicateCheck && curPredicate(msg)
       },
-      true
+      true,
     )
   }
 
   const addPredicate = callIfEnabled(add)
   const removePredicate = callIfEnabled(remove)
+  const dropPredicates = callIfEnabled(drop)
 
   return {
     getPredicates,
     addPredicate,
     removePredicate,
     checkMsg,
-    dropPredicates
+    dropPredicates,
   }
 }
 
