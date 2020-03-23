@@ -125,11 +125,11 @@ console.log(mailbox === sameMailbox) // Output: true
 
 #### `mailboxRepository.add(mailbox: Mailbox): boolean`
 
-Добавляет отключенный почтовый ящик в репозиторий и возвращает `true`. Возвращает `false` в случаях, если почтовый ящик уже в репозитории или репозиторий содержит почтовый ящик с таким же именем. Аналогичного эффекта можно добиться запуском метода [`enable` почтового ящика](#mailbox-enable-boolean).
+Добавляет отключенный почтовый ящик в репозиторий и возвращает `true`. Возвращает `false` в случаях, если почтовый ящик уже в репозитории или репозиторий содержит почтовый ящик с таким же именем. Аналогичного эффекта можно добиться запуском метода [`enable` почтового ящика](#mailboxenable-boolean).
 
 #### `mailboxRepository.remove(mailbox: Mailbox): boolean`
 
-Удаляет включенный почтовый ящик из репозитория и возвращает `true`. Возвращает `false` в случае, если почтовый ящик отключен. Аналогичного эффекта можно добиться запуском метода [`disable` почтового ящика](#mailbox-disable-boolean).
+Удаляет включенный почтовый ящик из репозитория и возвращает `true`. Возвращает `false` в случае, если почтовый ящик отключен. Аналогичного эффекта можно добиться запуском метода [`disable` почтового ящика](#mailboxdisable-boolean).
 
 #### `mailboxRepository.drop(): void`
 
@@ -165,13 +165,13 @@ console.log(mailbox === sameMailbox) // Output: true
 
 #### `mailbox.getPreHooks(): Predicate[]`
 
-Возвращает список pre-хуков почтового ящика (подробнее о pre-хуках в описании метода [`addPreHook`](#mailbox-addprehook-prehook-predicate-void), запускаемых перед отправкой письма методом [`sendMail`](#mailbox-sendmailmsg-string-void).
+Возвращает список pre-хуков почтового ящика (подробнее о pre-хуках в описании метода [`addPreHook`](#mailboxaddprehookprehook-predicate-void), запускаемых перед отправкой письма методом [`sendMail`](#mailboxsendmailmsg-string-void).
 
 #### `mailbox.pre(preHook: Predicate): void`
 
 **deprecated**
 
-Метод заменен на [`addPreHook`](#mailbox-addprehook-prehook-predicate-void). Тем не менее метод запускает `addPreHook` и выдает предупреждающее сообщение о неактуальности метода.
+Метод заменен на [`addPreHook`](#mailboxaddprehookprehook-predicate-void). Тем не менее метод запускает `addPreHook` и выдает предупреждающее сообщение о неактуальности метода.
 
 #### `mailbox.addPreHook(preHook: Predicate): void`
 
@@ -201,7 +201,7 @@ console.log(mailbox === sameMailbox) // Output: true
 
 **deprecated**
 
-Метод заменен на [`addNotifyHook`](#mailbox-addnotifyhook-notifyhook-notifyhook-void). Тем не менее метод запускает `addNotifyHook` и выдает предупреждающее сообщение о неактуальности метода.
+Метод заменен на [`addNotifyHook`](#mailboxaddnotifyhooknotifyhook-notifyhook-void). Тем не менее метод запускает `addNotifyHook` и выдает предупреждающее сообщение о неактуальности метода.
 
 #### `mailbox.addNotifyHook(notifyHook: NotifyHook): void`
 
